@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Copy, Paste, Forget",
+  "version": "1.0",
+  "description": "Automatically clears clipboard after a specified interval for enhanced security",
+  
+  "permissions": [
+    "activeTab",
+    "clipboardWrite",
+    "storage",
+    "scripting",
+    "tabs"
+  ],
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Copy, Paste, Forget Settings"
+  },
+  
+  "host_permissions": [
+    "<all_urls>"
+  ]
+}
