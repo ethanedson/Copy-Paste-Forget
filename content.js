@@ -54,10 +54,7 @@
     if ((event.ctrlKey || event.metaKey) && (event.key === 'c' || event.key === 'x')) {
       notifyCopyEvent();
     }
-    // Detect Ctrl+V (paste)
-    else if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
-      notifyPasteEvent();
-    }
+    // Do not notify paste on keydown; rely on actual paste event to evaluate content
   }
   
   function handleCopyEvent(event) {
@@ -65,7 +62,23 @@
   }
   
   function handlePasteEvent(event) {
-    notifyPasteEvent();
+    try {
+      // Prefer reading text from the event clipboard data
+      const text = (event && event.clipboardData)
+        ? (event.clipboardData.getData && event.clipboardData.getData('text')) || ''
+        : '';
+
+      if (typeof text === 'string' && text.trim() !== '') {
+        notifyPasteEvent();
+      } else {
+        // Blank/whitespace-only paste; do not start countdown
+        // Optionally log for debugging
+        // console.log('[Clipboard Security] Paste detected with empty text; skipping countdown');
+      }
+    } catch (e) {
+      // If we cannot read from event, fall back to not notifying to avoid false countdowns
+      // console.log('[Clipboard Security] Error reading paste event data; skipping countdown', e);
+    }
   }
   
   function handleContextMenu(event) {
@@ -76,7 +89,8 @@
         if (e.type === 'copy' || e.type === 'cut') {
           notifyCopyEvent();
         } else if (e.type === 'paste') {
-          notifyPasteEvent();
+          // Reuse paste handler so we only notify on non-empty text
+          handlePasteEvent(e);
         }
         document.removeEventListener('copy', contextMenuListener, true);
         document.removeEventListener('cut', contextMenuListener, true);
@@ -110,10 +124,20 @@
     
     // Intercept navigator.clipboard.readText calls (indicates paste operation)
     if (navigator.clipboard && navigator.clipboard.readText) {
-      const originalReadText = navigator.clipboard.readText;
+      const originalReadText = navigator.clipboard.readText.bind(navigator.clipboard);
       navigator.clipboard.readText = function(...args) {
-        notifyPasteEvent();
-        return originalReadText.apply(this, args);
+        try {
+          const result = originalReadText(...args);
+          return Promise.resolve(result).then((text) => {
+            if (typeof text === 'string' && text.trim() !== '') {
+              notifyPasteEvent();
+            }
+            return text;
+          });
+        } catch (err) {
+          // Preserve original error behavior
+          throw err;
+        }
       };
     }
     
@@ -123,7 +147,8 @@
       if (command === 'copy' || command === 'cut') {
         notifyCopyEvent();
       } else if (command === 'paste') {
-        notifyPasteEvent();
+        // Do not notify here; rely on the actual paste event handler
+        // which can evaluate whether pasted text is empty
       }
       return originalExecCommand.apply(this, [command, ...args]);
     };
