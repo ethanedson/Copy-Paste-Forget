@@ -74,13 +74,13 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.error('No response received from background script');
         enableToggle.checked = true;
         updateUI(true);
-        intervalInput.value = 5;
+        intervalInput.value = 10;
       }
     } catch (error) {
       console.error('Error loading settings:', error);
       enableToggle.checked = true;
       updateUI(true);
-      intervalInput.value = 5;
+      intervalInput.value = 10;
       showStatus('Using default settings - could not load saved settings', 'error');
     }
   }

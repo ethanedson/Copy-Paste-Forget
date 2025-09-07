@@ -148,7 +148,7 @@
       console.log('[Clipboard Security] Skipping paste event - extension context invalid');
       return;
     }
-    
+
     console.log('[Clipboard Security] Sending paste event to background');
     sendMessageSafely({
       type: 'PASTE_DETECTED',

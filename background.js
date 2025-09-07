@@ -1,7 +1,7 @@
 // Background script for clipboard security extension
 
 let clearTimer = null;
-let settings = { interval: 5, enabled: true };
+let settings = { interval: 10, enabled: true };
 
 // Load settings on startup
 chrome.runtime.onStartup.addListener(loadSettings);
@@ -17,13 +17,13 @@ async function loadSettings() {
     const result = await chrome.storage.sync.get(['clipboardInterval', 'extensionEnabled']);
     console.log('[Clipboard Security] Loaded settings from storage:', result);
     
-    settings.interval = result.clipboardInterval || 5;
+    settings.interval = result.clipboardInterval || 10;
     settings.enabled = result.extensionEnabled !== false;
     
     console.log('[Clipboard Security] Final settings:', settings);
   } catch (error) {
     console.log('[Clipboard Security] Error loading settings:', error);
-    settings.interval = 5;
+    settings.interval = 10;
     settings.enabled = true;
   }
 }
@@ -136,6 +136,7 @@ function handleCopyEvent() {
 }
 
 function handlePasteEvent() {
+
   if (clearTimer) {
     clearTimeout(clearTimer);
   }
