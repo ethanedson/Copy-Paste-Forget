@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Copy, Paste, Forget",
-  "version": "1.0",
+  "version": "1.0.1",
   "description": "Automatically clears clipboard after a specified interval for enhanced security",
   
   "permissions": [
@@ -9,7 +9,8 @@
     "clipboardWrite",
     "storage",
     "scripting",
-    "tabs"
+    "tabs",
+    "offscreen"
   ],
   
   "background": {

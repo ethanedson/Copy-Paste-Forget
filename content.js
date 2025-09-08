@@ -58,9 +58,6 @@
     document.addEventListener('cut', handleCopyEvent, true);
     document.addEventListener('paste', handlePasteEvent, true);
     
-    // Listen for clipboard API calls
-    interceptClipboardAPI();
-    
     // Listen for context menu copy/paste
     document.addEventListener('contextmenu', handleContextMenu, true);
     
@@ -134,58 +131,7 @@
     }, 100);
   }
   
-  function interceptClipboardAPI() {
-    // Intercept navigator.clipboard.writeText calls
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      const originalWriteText = navigator.clipboard.writeText;
-      navigator.clipboard.writeText = function(...args) {
-        notifyCopyEvent();
-        return originalWriteText.apply(this, args);
-      };
-    }
-    
-    // Intercept navigator.clipboard.write calls
-    if (navigator.clipboard && navigator.clipboard.write) {
-      const originalWrite = navigator.clipboard.write;
-      navigator.clipboard.write = function(...args) {
-        notifyCopyEvent();
-        return originalWrite.apply(this, args);
-      };
-    }
-    
-    // Intercept navigator.clipboard.readText calls (indicates paste operation)
-    if (navigator.clipboard && navigator.clipboard.readText) {
-      const originalReadText = navigator.clipboard.readText.bind(navigator.clipboard);
-      navigator.clipboard.readText = function(...args) {
-        try {
-          const result = originalReadText(...args);
-          return Promise.resolve(result).then((text) => {
-            if (typeof text === 'string' && text.trim() !== '') {
-              const active = document.activeElement || null;
-              const isPwd = isPasswordField(active);
-              notifyPasteEvent(isPwd);
-            }
-            return text;
-          });
-        } catch (err) {
-          // Preserve original error behavior
-          throw err;
-        }
-      };
-    }
-    
-    // Intercept document.execCommand for older browsers/extensions
-    const originalExecCommand = document.execCommand;
-    document.execCommand = function(command, ...args) {
-      if (command === 'copy' || command === 'cut') {
-        notifyCopyEvent();
-      } else if (command === 'paste') {
-        // Do not notify here; rely on the actual paste event handler
-        // which can evaluate whether pasted text is empty
-      }
-      return originalExecCommand.apply(this, [command, ...args]);
-    };
-  }
+  // Removed clipboard API monkey-patching; rely on DOM copy/cut/paste events
   
   function notifyCopyEvent() {
     if (!extensionContextValid) {
