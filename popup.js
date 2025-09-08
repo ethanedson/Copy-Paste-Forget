@@ -7,7 +7,14 @@ document.addEventListener('DOMContentLoaded', async function() {
   const toggleText = document.getElementById('toggleText');
   const settingsContainer = document.getElementById('settingsContainer');
   const passwordOnlyToggle = document.getElementById('passwordOnlyToggle');
+  const coffeeButton = document.getElementById('coffee');
+  const COFFEE_LICENSE_URL = 'https://edsonresearchsystems.gumroad.com/l/coffee'
   
+  // Assign link to coffee button
+  coffeeButton.onclick = () => {
+    chrome.tabs.create({url: COFFEE_LICENSE_URL});
+  }
+
   // Check if all required elements exist
   if (!intervalInput || !clearNowBtn || !statusDiv || !enableToggle || !toggleText || !settingsContainer || !passwordOnlyToggle) {
     console.error('Some required DOM elements not found');
@@ -35,7 +42,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   
   intervalInput.addEventListener('change', autoSaveInterval);
   intervalInput.addEventListener('input', debounce(autoSaveInterval, 1000));
-  
+
   async function loadCurrentSettings() {
     try {
       console.log('Loading current settings...');
