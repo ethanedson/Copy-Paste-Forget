@@ -8,42 +8,39 @@
       padding: 20px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       margin: 0;
-      color: #e5e7eb;
-      background: #1a1e26;
+      background: #27292b;
     }
     
     .header {
-      text-align: left;
+      text-align: center;
       margin-bottom: 10px;
     }
     
     .header h2 {
       margin: 0;
-      color: #ffffff;
+      color: #1a73e8;
       font-size: 18px;
     }
     
     .header p {
       margin: 5px 0 0 0;
-      color: #94a3b8;
+      color: #666;
       font-size: 12px;
     }
     
     .setting-group {
-      background: #252b3a;
+      background: #ffffff;
       border-radius: 8px;
       padding: 16px;
-      padding-bottom: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #1e293b;
-      box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset;
+      margin-bottom: 6px;
+      border: 1px solid #c4c4c5;
     }
     
     .setting-group label {
       display: block;
       font-weight: 500;
       margin-bottom: 8px;
-      color: #e5e7eb;
+      color: #333;
     }
     
     .input-group {
@@ -55,21 +52,19 @@
     #intervalInput {
       flex: 1;
       padding: 8px 12px;
-      background: #1a1e26;
-      color: #e5e7eb;
-      border: 1px solid #334155;
+      border: 1px solid #ddd;
       border-radius: 4px;
       font-size: 14px;
     }
     
     #intervalInput:focus {
       outline: none;
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.35);
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
     }
     
     .unit {
-      color: #94a3b8;
+      color: #666;
       font-size: 14px;
     }
     
@@ -82,32 +77,29 @@
     button {
       flex: 1;
       padding: 10px;
-      border: 1px solid transparent;
-      border-radius: 6px;
+      border: none;
+      border-radius: 4px;
       font-size: 14px;
       cursor: pointer;
-      transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+      transition: background-color 0.2s;
     }
     
     .primary-btn {
-      background: #2563eb;
-      color: #f8fafc;
-      border-color: #1d4ed8;
+      background: #1a73e8;
+      color: white;
     }
     
     .primary-btn:hover {
-      background: #1d4ed8;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+      background: #1557b0;
     }
     
     .secondary-btn {
-      background: #111827;
-      color: #e5e7eb;
-      border-color: #1f2937;
+      background: #f1f3f4;
+      color: #333;
     }
     
     .secondary-btn:hover {
-      background: #0f172a;
+      background: #e8eaed;
     }
     
     .status {
@@ -120,25 +112,25 @@
     }
     
     .status.success {
-      background: rgba(34, 197, 94, 0.15);
-      color: #86efac;
-      border: 1px solid rgba(34, 197, 94, 0.4);
+      background: #e8f5e8;
+      color: #2d5a2d;
+      border: 1px solid #c3e6c3;
     }
     
     .status.error {
-      background: rgba(239, 68, 68, 0.15);
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, 0.4);
+      background: #fce8e6;
+      color: #c5221f;
+      border: 1px solid #f4b2b0;
     }
     
     .info-section {
-      background: #252b3a;
+      background: #e8f0fe;
       border-radius: 8px;
       padding: 12px;
       margin-top: 12px;
       font-size: 12px;
-      color: #e2eefd;
-      border-left: 4px solid #3b82f6;
+      color: #1558d6;
+      border-left: 4px solid #1a73e8;
     }
     
     .info-section strong {
@@ -150,7 +142,7 @@
       display: block;
       font-weight: 500;
       margin-bottom: 12px;
-      color: #e2e8f0;
+      color: #333;
       font-size: 14px;
     }
     
@@ -170,15 +162,13 @@
       position: relative;
       width: 44px;
       height: 24px;
-      background: #334155;
+      background: #ccc;
       border-radius: 12px;
-      transition: background-color 0.3s, box-shadow 0.2s;
-      box-shadow: inset 0 0 0 1px #1e293b;
+      transition: background-color 0.3s;
     }
     
     .toggle-checkbox:checked + .toggle-slider {
-      background: #2563eb;
-      box-shadow: inset 0 0 0 1px #1d4ed8;
+      background: #1a73e8;
     }
     
     .toggle-button {
@@ -187,10 +177,10 @@
       left: 2px;
       width: 20px;
       height: 20px;
-      background: #e2e8f0;
+      background: white;
       border-radius: 50%;
       transition: transform 0.3s;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06) inset;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
     
     .toggle-checkbox:checked + .toggle-slider .toggle-button {
@@ -210,7 +200,7 @@
 </head>
 <body>
   <div class="header">
-    <h2>&#128274; Copy, Paste, Forget</h2>
+    <h2>Copy, Paste, Forget</h2>
   </div>
 
   <div class="info-section" style="margin-bottom:10px;">
@@ -233,7 +223,7 @@
   <div class="setting-group">
     <label class="toggle-title">Password Handling (beta)</label>
     <label class="toggle-label" style="justify-content: space-between; width: 100%; gap: 12px;">
-      <label style="font-weight: normal; color: #aeaeae; margin-bottom:10px">Only clear clipboard after paste in password field</label>
+      <label style="font-weight: normal; color: #333; margin-bottom:10px">Only clear clipboard after paste in password field</label>
       <input type="checkbox" id="passwordOnlyToggle" class="toggle-checkbox">
       <div class="toggle-slider"><div class="toggle-button"></div></div>
     </label>

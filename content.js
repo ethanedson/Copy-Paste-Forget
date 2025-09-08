@@ -15,6 +15,37 @@
   // Track extension context validity
   let extensionContextValid = true;
   
+  // Determine if an element is a password field
+  function isPasswordField(el) {
+    try {
+      if (!el || !(el instanceof Element)) return false;
+      if (el instanceof HTMLInputElement) {
+        const type = (el.type || '').toLowerCase();
+        if (type === 'password') return true;
+        const ac = (el.getAttribute('autocomplete') || '').toLowerCase();
+        if (/(^|\s)(current-password|new-password)(\s|$)/.test(ac)) return true;
+        const nameId = ((el.name || '') + ' ' + (el.id || '')).toLowerCase();
+        if (nameId.includes('password')) return true;
+        const css = getComputedStyle(el).getPropertyValue('-webkit-text-security');
+        if (css && css.trim().toLowerCase() !== 'none') return true;
+      }
+      // Check ancestors in case of shadow roots or wrapping
+      const ancestor = el.closest && el.closest('input,textarea,[contenteditable="true"]');
+      if (ancestor && ancestor !== el) return isPasswordField(ancestor);
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+  
+  function getPasteTarget(event) {
+    if (event && typeof event.composedPath === 'function') {
+      const path = event.composedPath();
+      if (Array.isArray(path) && path.length > 0) return path[0];
+    }
+    return (event && event.target) || document.activeElement || null;
+  }
+  
   function setupListeners() {
     if (listenersSetup) return;
     listenersSetup = true;
@@ -63,21 +94,20 @@
   
   function handlePasteEvent(event) {
     try {
+      const target = getPasteTarget(event);
+      const isPwd = isPasswordField(target);
       // Prefer reading text from the event clipboard data
       const text = (event && event.clipboardData)
         ? (event.clipboardData.getData && event.clipboardData.getData('text')) || ''
         : '';
 
       if (typeof text === 'string' && text.trim() !== '') {
-        notifyPasteEvent();
+        notifyPasteEvent(isPwd);
       } else {
         // Blank/whitespace-only paste; do not start countdown
-        // Optionally log for debugging
-        // console.log('[Clipboard Security] Paste detected with empty text; skipping countdown');
       }
     } catch (e) {
-      // If we cannot read from event, fall back to not notifying to avoid false countdowns
-      // console.log('[Clipboard Security] Error reading paste event data; skipping countdown', e);
+      // Do nothing on failure to read paste content
     }
   }
   
@@ -130,7 +160,9 @@
           const result = originalReadText(...args);
           return Promise.resolve(result).then((text) => {
             if (typeof text === 'string' && text.trim() !== '') {
-              notifyPasteEvent();
+              const active = document.activeElement || null;
+              const isPwd = isPasswordField(active);
+              notifyPasteEvent(isPwd);
             }
             return text;
           });
@@ -168,7 +200,7 @@
     });
   }
   
-  function notifyPasteEvent() {
+  function notifyPasteEvent(isPasswordFieldPaste = false) {
     if (!extensionContextValid) {
       console.log('[Clipboard Security] Skipping paste event - extension context invalid');
       return;
@@ -178,7 +210,8 @@
     sendMessageSafely({
       type: 'PASTE_DETECTED',
       timestamp: Date.now(),
-      url: window.location.href
+      url: window.location.href,
+      isPassword: Boolean(isPasswordFieldPaste)
     });
   }
   

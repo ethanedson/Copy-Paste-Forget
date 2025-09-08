@@ -6,10 +6,9 @@ document.addEventListener('DOMContentLoaded', async function() {
   const enableToggle = document.getElementById('enableToggle');
   const toggleText = document.getElementById('toggleText');
   const settingsContainer = document.getElementById('settingsContainer');
-  const passwordOnlyToggle = document.getElementById('passwordOnlyToggle');
   
   // Check if all required elements exist
-  if (!intervalInput || !clearNowBtn || !statusDiv || !enableToggle || !toggleText || !settingsContainer || !passwordOnlyToggle) {
+  if (!intervalInput || !clearNowBtn || !statusDiv || !enableToggle || !toggleText || !settingsContainer) {
     console.error('Some required DOM elements not found');
     return;
   }
@@ -20,7 +19,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   // Event listeners
   clearNowBtn.addEventListener('click', clearClipboardNow);
   enableToggle.addEventListener('change', toggleExtension);
-  passwordOnlyToggle.addEventListener('change', togglePasswordOnly);
   
   // Add click handler for the toggle container to make it clickable
   const toggleContainer = document.querySelector('.toggle-container');
@@ -71,9 +69,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         enableToggle.checked = enabled;
         updateUI(enabled);
         
-        // Initialize password-only toggle
-        passwordOnlyToggle.checked = Boolean(response.clearOnlyOnPasswordPaste);
-        
         console.log('Settings loaded successfully');
       } else {
         console.error('No response received from background script');
@@ -87,40 +82,6 @@ document.addEventListener('DOMContentLoaded', async function() {
       updateUI(true);
       intervalInput.value = 10;
       showStatus('Using default settings - could not load saved settings', 'error');
-    }
-  }
-
-  async function togglePasswordOnly() {
-    const value = passwordOnlyToggle.checked;
-    try {
-      const response = await new Promise((resolve, reject) => {
-        const timeoutId = setTimeout(() => {
-          reject(new Error('Timeout saving option'));
-        }, 5000);
-        
-        chrome.runtime.sendMessage({
-          type: 'UPDATE_PASSWORD_ONLY',
-          value
-        }, (response) => {
-          clearTimeout(timeoutId);
-          
-          if (chrome.runtime.lastError) {
-            reject(new Error(chrome.runtime.lastError.message));
-          } else {
-            resolve(response);
-          }
-        });
-      });
-      
-      if (response && response.success) {
-        showStatus('Option saved', 'success', 1500);
-      } else {
-        showStatus('Error saving option', 'error');
-      }
-    } catch (error) {
-      console.error('Error updating password-only option:', error);
-      showStatus('Error saving option', 'error');
-      passwordOnlyToggle.checked = !value; // revert on error
     }
   }
   
@@ -157,7 +118,7 @@ document.addEventListener('DOMContentLoaded', async function() {
       console.log('Toggle response received:', response);
       
       if (response && response.success) {
-        showStatus(enabled ? 'Extension Enabled' : 'Extension Disabled', 'success');
+        showStatus(enabled ? 'Extension Status: Enabled' : 'Extension Status: Disabled', 'success');
         console.log('Toggle successful');
       } else {
         console.error('Toggle failed with response:', response);
@@ -174,7 +135,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
   
   function updateUI(enabled) {
-    toggleText.textContent = enabled ? 'Extension Enabled' : 'Extension Disabled';
+    toggleText.textContent = enabled ? 'Extension Status: Enabled' : 'Extension Status: Disabled';
     
     if (enabled) {
       settingsContainer.classList.remove('disabled');

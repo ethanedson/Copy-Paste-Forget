@@ -1,7 +1,7 @@
 // Background script for clipboard security extension
 
 let clearTimer = null;
-let settings = { interval: 10, enabled: true };
+let settings = { interval: 10, enabled: true, clearOnlyOnPasswordPaste: false };
 
 // Load settings on startup
 chrome.runtime.onStartup.addListener(loadSettings);
@@ -14,11 +14,12 @@ async function loadSettings() {
       return;
     }
     
-    const result = await chrome.storage.sync.get(['clipboardInterval', 'extensionEnabled']);
+    const result = await chrome.storage.sync.get(['clipboardInterval', 'extensionEnabled', 'clearOnlyOnPasswordPaste']);
     console.log('[Clipboard Security] Loaded settings from storage:', result);
     
     settings.interval = result.clipboardInterval || 10;
     settings.enabled = result.extensionEnabled !== false;
+    settings.clearOnlyOnPasswordPaste = Boolean(result.clearOnlyOnPasswordPaste);
     
     console.log('[Clipboard Security] Final settings:', settings);
   } catch (error) {
@@ -42,7 +43,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   
   if (message.type === 'PASTE_DETECTED') {
     if (settings.enabled) {
-      handlePasteEvent();
+      const isPassword = Boolean(message.isPassword);
+      if (!settings.clearOnlyOnPasswordPaste || isPassword) {
+        handlePasteEvent();
+      } else {
+        console.log('[Background] Paste detected but skipping due to password-only setting');
+      }
     }
     sendResponse({ success: true });
     return;
@@ -104,6 +110,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.error('[Background] Error updating settings:', error);
         sendResponse({ success: false, error: error.message });
       });
+    return true;
+  }
+
+  if (message.type === 'UPDATE_PASSWORD_ONLY') {
+    // Handle asynchronously and keep the message channel open
+    (async () => {
+      try {
+        const value = Boolean(message.value);
+        settings.clearOnlyOnPasswordPaste = value;
+        await chrome.storage.sync.set({ clearOnlyOnPasswordPaste: value });
+        console.log('[Background] Updated clearOnlyOnPasswordPaste to:', value);
+        sendResponse({ success: true });
+      } catch (error) {
+        console.error('[Background] Error updating password-only setting:', error);
+        sendResponse({ success: false, error: error.message });
+      }
+    })();
     return true;
   }
   
