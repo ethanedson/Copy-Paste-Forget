@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   async function loadCurrentSettings() {
     try {
-      console.log('Loading current settings...');
+      //console.log('Loading current settings...');
       
       const response = await new Promise((resolve, reject) => {
         const timeoutId = setTimeout(() => {
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
       });
       
-      console.log('Settings response:', response);
+      //console.log('Settings response:', response);
       
       if (response) {
         if (typeof response.interval === 'number') {
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
         
         const enabled = Boolean(response.enabled);
-        console.log('Setting toggle to:', enabled);
+        //console.log('Setting toggle to:', enabled);
         
         enableToggle.checked = enabled;
         updateUI(enabled);
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Initialize password-only toggle
         passwordOnlyToggle.checked = Boolean(response.clearOnlyOnPasswordPaste);
         
-        console.log('Settings loaded successfully');
+        //console.log('Settings loaded successfully');
       } else {
         console.error('No response received from background script');
         enableToggle.checked = true;
@@ -133,12 +133,12 @@ document.addEventListener('DOMContentLoaded', async function() {
   
   async function toggleExtension() {
     const enabled = enableToggle.checked;
-    console.log('Toggling extension to:', enabled);
+    //console.log('Toggling extension to:', enabled);
     
     updateUI(enabled);
     
     try {
-      console.log('Sending TOGGLE_EXTENSION message...');
+      //console.log('Sending TOGGLE_EXTENSION message...');
       
       const response = await new Promise((resolve, reject) => {
         const timeoutId = setTimeout(() => {
@@ -155,17 +155,17 @@ document.addEventListener('DOMContentLoaded', async function() {
             console.error('Chrome runtime error:', chrome.runtime.lastError);
             reject(new Error(chrome.runtime.lastError.message));
           } else {
-            console.log('Received response:', response);
+            //console.log('Received response:', response);
             resolve(response);
           }
         });
       });
       
-      console.log('Toggle response received:', response);
+      //console.log('Toggle response received:', response);
       
       if (response && response.success) {
         showStatus(enabled ? 'Extension Enabled' : 'Extension Disabled', 'success');
-        console.log('Toggle successful');
+        //console.log('Toggle successful');
       } else {
         console.error('Toggle failed with response:', response);
         enableToggle.checked = !enabled;

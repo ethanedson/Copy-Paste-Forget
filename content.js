@@ -74,8 +74,9 @@
         // Extension context is valid
         extensionContextValid = true;
       }
-    } catch (error) {
-      console.log('[Clipboard Security] Extension context invalid on startup');
+    } 
+    catch (error) {
+      console.log('[Copy, Paste, Forget] Extension context invalid on startup');
       extensionContextValid = false;
     }
   }
@@ -188,29 +189,27 @@
   
   function notifyCopyEvent() {
     if (!extensionContextValid) {
-      console.log('[Clipboard Security] Skipping copy event - extension context invalid');
+      console.log('[Copy, Paste, Forget] Skipping copy event - extension context invalid');
       return;
     }
     
-    console.log('[Clipboard Security] Sending copy event to background');
+    //console.log('[Copy, Paste, Forget] Sending copy event to background');
     sendMessageSafely({
       type: 'COPY_DETECTED',
-      timestamp: Date.now(),
-      url: window.location.href
+      timestamp: Date.now()
     });
   }
   
   function notifyPasteEvent(isPasswordFieldPaste = false) {
     if (!extensionContextValid) {
-      console.log('[Clipboard Security] Skipping paste event - extension context invalid');
+      console.log('[Copy, Paste, Forget] Skipping paste event - extension context invalid');
       return;
     }
 
-    console.log('[Clipboard Security] Sending paste event to background');
+    //console.log('[Copy, Paste, Forget] Sending paste event to background');
     sendMessageSafely({
       type: 'PASTE_DETECTED',
       timestamp: Date.now(),
-      url: window.location.href,
       isPassword: Boolean(isPasswordFieldPaste)
     });
   }
@@ -219,7 +218,7 @@
     try {
       // Check if chrome.runtime is available and extension context is valid
       if (!chrome.runtime || !chrome.runtime.id) {
-        console.log('[Clipboard Security] Extension context invalidated, stopping notifications');
+        console.log('[Copy, Paste, Forget] Extension context invalidated, stopping notifications');
         extensionContextValid = false;
         return;
       }
@@ -233,28 +232,29 @@
           if (error.includes('Extension context invalidated') || 
               error.includes('Receiving end does not exist') ||
               error.includes('message port closed')) {
-            console.log('[Clipboard Security] Extension context invalidated:', error);
+            console.log('[Copy, Paste, Forget] Extension context invalidated:', error);
             extensionContextValid = false;
             return;
           }
           
-          console.log('[Clipboard Security] Runtime error:', error);
+          console.log('[Copy, Paste, Forget] Runtime error:', error);
         }
         
         // Message sent successfully
         if (response) {
-          console.log('[Clipboard Security] Message acknowledged by background script');
+          //console.log('[Copy, Paste, Forget] Message acknowledged by background script');
         }
       });
       
-    } catch (error) {
-      console.log('[Clipboard Security] Error sending message:', error.message);
+    } 
+    catch (error) {
+      console.log('[Copy, Paste, Forget] Error sending message:', error.message);
       
       // Mark context as invalid if we get extension-related errors
       if (error.message.includes('Extension context invalidated') ||
           error.message.includes('chrome.runtime') ||
           error.message.includes('Invocation of form')) {
-        console.log('[Clipboard Security] Marking extension context as invalid');
+        console.log('[Copy, Paste, Forget] Marking extension context as invalid');
         extensionContextValid = false;
       }
     }
@@ -266,8 +266,9 @@
       try {
         clearClipboardInContent();
         sendResponse({ success: true });
-      } catch (error) {
-        console.log('[Clipboard Security] Error clearing clipboard in content script:', error);
+      } 
+      catch (error) {
+        console.log('[Copy, Paste, Forget] Error clearing clipboard in content script:', error);
         sendResponse({ success: false, error: error.message });
       }
     }
@@ -276,13 +277,13 @@
   
   function clearClipboardInContent() {
     try {
-      console.log('[Clipboard Security] Clearing clipboard from content script');
+      //console.log('[Copy, Paste, Forget] Clearing clipboard from content script');
       
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText("").then(() => {
-          console.log('[Clipboard Security] ✓ Clipboard cleared via content script');
+          //console.log('[Copy, Paste, Forget] ✓ Clipboard cleared via content script');
         }).catch(err => {
-          console.log('[Clipboard Security] Content script clipboard clear failed:', err);
+          console.log('[Copy, Paste, Forget] Content script clipboard clear failed:', err);
         });
       } else {
         // Fallback method
@@ -300,11 +301,12 @@
         document.body.removeChild(textarea);
         
         if (success) {
-          console.log('[Clipboard Security] ✓ Clipboard cleared via execCommand in content script');
+          //console.log('[Copy, Paste, Forget] ✓ Clipboard cleared via execCommand in content script');
         }
       }
-    } catch (error) {
-      console.log('[Clipboard Security] Error in clearClipboardInContent:', error);
+    } 
+    catch (error) {
+      console.log('[Copy, Paste, Forget] Error in clearClipboardInContent:', error);
       throw error;
     }
   }
@@ -324,11 +326,11 @@
     if (extensionContextValid) {
       try {
         if (!chrome.runtime || !chrome.runtime.id) {
-          console.log('[Clipboard Security] Extension context lost during periodic check');
+          console.log('[Copy, Paste, Forget] Extension context lost during periodic check');
           extensionContextValid = false;
         }
       } catch (error) {
-        console.log('[Clipboard Security] Extension context lost during periodic check:', error.message);
+        console.log('[Copy, Paste, Forget] Extension context lost during periodic check:', error.message);
         extensionContextValid = false;
       }
     }

@@ -10,20 +10,21 @@ chrome.runtime.onInstalled.addListener(loadSettings);
 async function loadSettings() {
   try {
     if (!chrome.storage || !chrome.storage.sync) {
-      console.error('[Clipboard Security] Chrome storage API not available');
+      console.error('[Copy, Paste, Forget] Chrome storage API not available');
       return;
     }
     
     const result = await chrome.storage.sync.get(['clipboardInterval', 'extensionEnabled', 'clearOnlyOnPasswordPaste']);
-    console.log('[Clipboard Security] Loaded settings from storage:', result);
+    //console.log('[Copy, Paste, Forget] Loaded settings from storage:', result);
     
     settings.interval = result.clipboardInterval || 10;
     settings.enabled = result.extensionEnabled !== false;
     settings.clearOnlyOnPasswordPaste = Boolean(result.clearOnlyOnPasswordPaste);
     
-    console.log('[Clipboard Security] Final settings:', settings);
-  } catch (error) {
-    console.log('[Clipboard Security] Error loading settings:', error);
+    //console.log('[Copy, Paste, Forget] Final settings:', settings);
+  } 
+  catch (error) {
+    console.log('[Copy, Paste, Forget] Error loading settings:', error);
     settings.interval = 10;
     settings.enabled = true;
   }
@@ -31,7 +32,7 @@ async function loadSettings() {
 
 // Listen for messages from content scripts and popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log('[Background] Received message:', message.type, message);
+  //console.log('[Background] Received message:', message.type, message);
   
   if (message.type === 'COPY_DETECTED') {
     if (settings.enabled) {
@@ -46,8 +47,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const isPassword = Boolean(message.isPassword);
       if (!settings.clearOnlyOnPasswordPaste || isPassword) {
         handlePasteEvent();
-      } else {
-        console.log('[Background] Paste detected but skipping due to password-only setting');
+      } 
+      else {
+        //console.log('[Background] Paste detected but skipping due to password-only setting');
       }
     }
     sendResponse({ success: true });
@@ -55,32 +57,33 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   
   if (message.type === 'GET_SETTINGS') {
-    console.log('[Background] Sending settings:', settings);
+    //console.log('[Background] Sending settings:', settings);
     sendResponse(settings);
     return;
   }
   
   if (message.type === 'TOGGLE_EXTENSION') {
-    console.log('[Background] Processing toggle to:', message.enabled);
+    //console.log('[Background] Processing toggle to:', message.enabled);
     
     try {
       settings.enabled = message.enabled;
-      console.log('[Background] Settings updated in memory');
+      //console.log('[Background] Settings updated in memory');
       
       if (!message.enabled && clearTimer) {
         clearTimeout(clearTimer);
         clearTimer = null;
         chrome.action.setBadgeText({ text: "" });
-        console.log('[Background] Cleared timer');
+        //console.log('[Background] Cleared timer');
       }
       
       if (!message.enabled) {
-        chrome.action.setBadgeText({ text: "❌" });
-        chrome.action.setBadgeBackgroundColor({ color: "#888" });
+        // chrome.action.setBadgeText({ text: "❌" });
+        // chrome.action.setBadgeBackgroundColor({ color: "#888" });
         setTimeout(() => {
           chrome.action.setBadgeText({ text: "" });
         }, 2000);
-      } else {
+      } 
+      else {
         chrome.action.setBadgeText({ text: "" });
       }
       
@@ -88,26 +91,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.warn('[Background] Storage save failed:', err);
       });
       
-      console.log('[Background] Toggle completed, sending success');
+      // console.log('[Background] Toggle completed, sending success');
       sendResponse({ success: true });
       
-    } catch (error) {
-      console.error('[Background] Toggle error:', error);
+    } 
+    catch (error) {
+      console.error('[Copy, Paste, Forget] Toggle error:', error);
       sendResponse({ success: false, error: error.message });
     }
     return;
   }
   
   if (message.type === 'UPDATE_SETTINGS') {
-    console.log('[Background] Updating interval to:', message.interval);
+    //console.log('[Background] Updating interval to:', message.interval);
     
     updateSettings(message.interval)
       .then(() => {
-        console.log('[Background] Settings updated successfully');
+        //console.log('[Background] Settings updated successfully');
         sendResponse({ success: true });
       })
       .catch((error) => {
-        console.error('[Background] Error updating settings:', error);
+        console.error('[Copy, Paste, Forget] Error updating settings:', error);
         sendResponse({ success: false, error: error.message });
       });
     return true;
@@ -120,10 +124,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const value = Boolean(message.value);
         settings.clearOnlyOnPasswordPaste = value;
         await chrome.storage.sync.set({ clearOnlyOnPasswordPaste: value });
-        console.log('[Background] Updated clearOnlyOnPasswordPaste to:', value);
+        //console.log('[Background] Updated clearOnlyOnPasswordPaste to:', value);
         sendResponse({ success: true });
-      } catch (error) {
-        console.error('[Background] Error updating password-only setting:', error);
+      } 
+      catch (error) {
+        console.error('[Copy, Paste, Forget] Error updating password-only setting:', error);
         sendResponse({ success: false, error: error.message });
       }
     })();
@@ -142,7 +147,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
   }
   
-  console.log('[Background] Unknown message type:', message.type);
+  //console.log('[Background] Unknown message type:', message.type);
   sendResponse({ success: false, error: 'Unknown message type' });
 });
 
@@ -152,10 +157,9 @@ function handleCopyEvent() {
     clearTimer = null;
   }
   
-  console.log(`[Clipboard Security] Copy detected! Waiting for paste event to start timer`);
-  
-  chrome.action.setBadgeText({ text: "📋" });
-  chrome.action.setBadgeBackgroundColor({ color: "#2196F3" });
+  // console.log(`[Copy, Paste, Forget] Copy detected! Waiting for paste event to start timer`);
+  // chrome.action.setBadgeText({ text: "📋" });
+  // chrome.action.setBadgeBackgroundColor({ color: "#2196F3" });
 }
 
 function handlePasteEvent() {
@@ -164,7 +168,7 @@ function handlePasteEvent() {
     clearTimeout(clearTimer);
   }
   
-  console.log(`[Clipboard Security] Paste detected! Clipboard will be cleared in ${settings.interval} seconds`);
+  //console.log(`[Copy, Paste, Forget] Paste detected! Clipboard will be cleared in ${settings.interval} seconds`);
   
   let timeLeft = settings.interval;
   
@@ -175,15 +179,16 @@ function handlePasteEvent() {
     timeLeft--;
     if (timeLeft > 0) {
       chrome.action.setBadgeText({ text: timeLeft.toString() });
-      console.log(`[Clipboard Security] Countdown: ${timeLeft} seconds remaining`);
-    } else {
+      //console.log(`[Copy, Paste, Forget] Countdown: ${timeLeft} seconds remaining`);
+    } 
+    else {
       clearInterval(countdownInterval);
     }
   }, 1000);
   
   clearTimer = setTimeout(() => {
     clearInterval(countdownInterval);
-    console.log('[Clipboard Security] Timer expired - clearing clipboard now!');
+    //console.log('[Copy, Paste, Forget] Timer expired - clearing clipboard now!');
     clearClipboard();
   }, settings.interval * 1000);
 }
@@ -195,7 +200,7 @@ async function clearClipboard() {
       clearTimer = null;
     }
     
-    console.log('[Clipboard Security] Attempting to clear clipboard...');
+    //console.log('[Copy, Paste, Forget] Attempting to clear clipboard...');
     
     try {
       const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -205,12 +210,13 @@ async function clearClipboard() {
           func: clearClipboardInTab
         });
         
-        console.log('[Clipboard Security] Clipboard clear script injected into active tab');
+        //console.log('[Copy, Paste, Forget] Clipboard clear script injected into active tab');
         showClearedBadge();
         return;
       }
-    } catch (error) {
-      console.log('[Clipboard Security] Active tab method failed:', error);
+    } 
+    catch (error) {
+      console.log('[Copy, Paste, Forget] Active tab method failed:', error);
     }
     
     try {
@@ -230,12 +236,13 @@ async function clearClipboard() {
           func: clearClipboardInTab
         });
         
-        console.log('[Clipboard Security] Clipboard clear script injected into fallback tab');
+        //console.log('[Copy, Paste, Forget] Clipboard clear script injected into fallback tab');
         showClearedBadge();
         return;
       }
-    } catch (error) {
-      console.log('[Clipboard Security] Fallback tab method failed:', error);
+    } 
+    catch (error) {
+      console.log('[Copy, Paste, Forget] Fallback tab method failed:', error);
     }
     
     try {
@@ -245,39 +252,42 @@ async function clearClipboard() {
           try {
             const response = await chrome.tabs.sendMessage(tab.id, { type: 'CLEAR_CLIPBOARD_REQUEST' });
             if (response && response.success) {
-              console.log('[Clipboard Security] Clipboard cleared via content script');
+              //console.log('[Copy, Paste, Forget] Clipboard cleared via content script');
               showClearedBadge();
               return;
             }
-          } catch (e) {
+          } 
+          catch (e) {
             // Continue to next tab
           }
         }
       }
-    } catch (error) {
-      console.log('[Clipboard Security] Content script method failed:', error);
+    } 
+    catch (error) {
+      console.log('[Copy, Paste, Forget] Content script method failed:', error);
     }
     
-    console.error('[Clipboard Security] All clipboard clearing methods failed - no suitable tabs available');
+    console.error('[Copy, Paste, Forget] All clipboard clearing methods failed - no suitable tabs available');
     
-  } catch (error) {
-    console.error('[Clipboard Security] Error in clearClipboard:', error);
+  } 
+  catch (error) {
+    console.error('[Copy, Paste, Forget] Error in clearClipboard:', error);
   }
 }
 
 function clearClipboardInTab() {
   try {
-    console.log('[Clipboard Security] Attempting to clear clipboard in tab context');
+    //console.log('[Copy, Paste, Forget] Attempting to clear clipboard in tab context');
     
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText("").then(() => {
-        console.log('[Clipboard Security] ✓ Clipboard cleared with modern API');
+        //console.log('[Copy, Paste, Forget] ✓ Clipboard cleared with modern API');
       }).catch(err => {
-        console.log('[Clipboard Security] Modern API failed, trying fallback:', err);
+        console.log('[Copy, Paste, Forget] Modern API failed, trying fallback:', err);
         clearWithExecCommand();
       });
     } else {
-      console.log('[Clipboard Security] Modern clipboard API not available, using fallback');
+      console.log('[Copy, Paste, Forget] Modern clipboard API not available, using fallback');
       clearWithExecCommand();
     }
     
@@ -297,17 +307,17 @@ function clearClipboardInTab() {
         document.body.removeChild(textarea);
         
         if (success) {
-          console.log('[Clipboard Security] ✓ Clipboard cleared with execCommand');
+          //console.log('[Copy, Paste, Forget] ✓ Clipboard cleared with execCommand');
         } else {
-          console.log('[Clipboard Security] ✗ execCommand failed');
+          console.log('[Copy, Paste, Forget] ✗ execCommand failed');
         }
       } catch (execError) {
-        console.log('[Clipboard Security] ✗ execCommand method failed:', execError);
+        console.log('[Copy, Paste, Forget] ✗ execCommand method failed:', execError);
       }
     }
     
   } catch (error) {
-    console.log('[Clipboard Security] ✗ Error in clearClipboardInTab:', error);
+    console.log('[Copy, Paste, Forget] ✗ Error in clearClipboardInTab:', error);
   }
 }
 
@@ -332,7 +342,7 @@ async function updateSettings(newInterval) {
       }, settings.interval * 1000);
     }
   } catch (error) {
-    console.error('[Clipboard Security] Error saving settings:', error);
+    console.error('[Copy, Paste, Forget] Error saving settings:', error);
   }
 }
 
