@@ -157,9 +157,6 @@ function handleCopyEvent() {
     clearTimer = null;
   }
   
-  // console.log(`[Copy, Paste, Forget] Copy detected! Waiting for paste event to start timer`);
-  // chrome.action.setBadgeText({ text: "📋" });
-  // chrome.action.setBadgeBackgroundColor({ color: "#2196F3" });
 }
 
 function handlePasteEvent() {

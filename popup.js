@@ -29,17 +29,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   enableToggle.addEventListener('change', toggleExtension);
   passwordOnlyToggle.addEventListener('change', togglePasswordOnly);
   
-  // Add click handler for the toggle container to make it clickable
-  const toggleContainer = document.querySelector('.toggle-container');
-  if (toggleContainer) {
-    toggleContainer.addEventListener('click', function(e) {
-      if (e.target !== enableToggle) {
-        enableToggle.checked = !enableToggle.checked;
-        toggleExtension();
-      }
-    });
-  }
-  
   intervalInput.addEventListener('change', autoSaveInterval);
   intervalInput.addEventListener('input', debounce(autoSaveInterval, 1000));
 
