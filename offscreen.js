@@ -19,7 +19,8 @@ async function clearClipboard() {
     try {
       await navigator.clipboard.writeText('');
       return;
-    } catch (e) {
+    } 
+    catch (e) {
       // Fall back
     }
   }
@@ -28,7 +29,8 @@ async function clearClipboard() {
   try {
     await setClipboardEmptyViaCopyEvent();
     return;
-  } catch (_) {}
+  } 
+  catch (_) {}
 
   // Fallback to execCommand with non-empty overwrite then try empty
   return new Promise((resolve, reject) => {
@@ -81,7 +83,8 @@ function setClipboardEmptyViaCopyEvent() {
 (async () => {
   try {
     await clearClipboard();
-  } catch (_) {}
+  } 
+  catch (_) {}
   // Attempt to close if this is a visible tab
   try { window.close(); } catch (_) {}
 })();

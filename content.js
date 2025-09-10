@@ -54,8 +54,6 @@
     document.addEventListener('keydown', handleKeyboardEvent, true);
     
     // Listen for copy events
-    document.addEventListener('copy', handleCopyEvent, true);
-    document.addEventListener('cut', handleCopyEvent, true);
     document.addEventListener('paste', handlePasteEvent, true);
     
     // Listen for context menu copy/paste
@@ -76,18 +74,6 @@
       console.log('[Copy, Paste, Forget] Extension context invalid on startup');
       extensionContextValid = false;
     }
-  }
-  
-  function handleKeyboardEvent(event) {
-    // Detect Ctrl+C (copy) or Ctrl+X (cut)
-    if ((event.ctrlKey || event.metaKey) && (event.key === 'c' || event.key === 'x')) {
-      notifyCopyEvent();
-    }
-    // Do not notify paste on keydown; rely on actual paste event to evaluate content
-  }
-  
-  function handleCopyEvent(event) {
-    notifyCopyEvent();
   }
   
   function handlePasteEvent(event) {
@@ -114,36 +100,14 @@
     setTimeout(() => {
       // Listen for copy/paste from context menu
       const contextMenuListener = (e) => {
-        if (e.type === 'copy' || e.type === 'cut') {
-          notifyCopyEvent();
-        } else if (e.type === 'paste') {
+        if (e.type === 'paste') {
           // Reuse paste handler so we only notify on non-empty text
           handlePasteEvent(e);
         }
-        document.removeEventListener('copy', contextMenuListener, true);
-        document.removeEventListener('cut', contextMenuListener, true);
         document.removeEventListener('paste', contextMenuListener, true);
       };
-      
-      document.addEventListener('copy', contextMenuListener, true);
-      document.addEventListener('cut', contextMenuListener, true);
       document.addEventListener('paste', contextMenuListener, true);
     }, 100);
-  }
-  
-  // Removed clipboard API monkey-patching; rely on DOM copy/cut/paste events
-  
-  function notifyCopyEvent() {
-    if (!extensionContextValid) {
-      console.log('[Copy, Paste, Forget] Skipping copy event - extension context invalid');
-      return;
-    }
-    
-    //console.log('[Copy, Paste, Forget] Sending copy event to background');
-    sendMessageSafely({
-      type: 'COPY_DETECTED',
-      timestamp: Date.now()
-    });
   }
   
   function notifyPasteEvent(isPasswordFieldPaste = false) {
@@ -152,7 +116,6 @@
       return;
     }
 
-    //console.log('[Copy, Paste, Forget] Sending paste event to background');
     sendMessageSafely({
       type: 'PASTE_DETECTED',
       timestamp: Date.now(),
@@ -188,7 +151,6 @@
         
         // Message sent successfully
         if (response) {
-          //console.log('[Copy, Paste, Forget] Message acknowledged by background script');
         }
       });
       
@@ -223,31 +185,29 @@
   
   function clearClipboardInContent() {
     try {
-      //console.log('[Copy, Paste, Forget] Clearing clipboard from content script');
       
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText("").then(() => {
-          //console.log('[Copy, Paste, Forget] ✓ Clipboard cleared via content script');
         }).catch(err => {
           console.log('[Copy, Paste, Forget] Content script clipboard clear failed:', err);
         });
-      } else {
+      } 
+      else {
         // Fallback method
         const textarea = document.createElement('textarea');
-        textarea.value = '';
+        textarea.value = ' ';
         textarea.style.position = 'fixed';
         textarea.style.opacity = '0';
         textarea.style.left = '-9999px';
         document.body.appendChild(textarea);
         
         textarea.select();
-        textarea.setSelectionRange(0, 0);
+        textarea.setSelectionRange(0, textarea.value.length);
         
         const success = document.execCommand('copy');
         document.body.removeChild(textarea);
         
         if (success) {
-          //console.log('[Copy, Paste, Forget] ✓ Clipboard cleared via execCommand in content script');
         }
       }
     } 
@@ -260,7 +220,8 @@
   // Setup listeners when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', setupListeners);
-  } else {
+  } 
+  else {
     setupListeners();
   }
   

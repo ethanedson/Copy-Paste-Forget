@@ -34,8 +34,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   async function loadCurrentSettings() {
     try {
-      //console.log('Loading current settings...');
-      
       const response = await new Promise((resolve, reject) => {
         const timeoutId = setTimeout(() => {
           reject(new Error('Timeout loading settings'));
@@ -54,15 +52,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
       });
       
-      //console.log('Settings response:', response);
-      
       if (response) {
         if (typeof response.interval === 'number') {
           intervalInput.value = response.interval;
         }
         
         const enabled = Boolean(response.enabled);
-        //console.log('Setting toggle to:', enabled);
         
         enableToggle.checked = enabled;
         updateUI(enabled);
@@ -70,14 +65,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Initialize password-only toggle
         passwordOnlyToggle.checked = Boolean(response.clearOnlyOnPasswordPaste);
         
-        //console.log('Settings loaded successfully');
-      } else {
+      } 
+      else {
         console.error('No response received from background script');
         enableToggle.checked = true;
         updateUI(true);
         intervalInput.value = 10;
       }
-    } catch (error) {
+    } 
+    catch (error) {
       console.error('Error loading settings:', error);
       enableToggle.checked = true;
       updateUI(true);
@@ -122,13 +118,10 @@ document.addEventListener('DOMContentLoaded', async function() {
   
   async function toggleExtension() {
     const enabled = enableToggle.checked;
-    //console.log('Toggling extension to:', enabled);
     
     updateUI(enabled);
     
     try {
-      //console.log('Sending TOGGLE_EXTENSION message...');
-      
       const response = await new Promise((resolve, reject) => {
         const timeoutId = setTimeout(() => {
           reject(new Error('Message timeout - background script may not be responding'));
@@ -154,14 +147,15 @@ document.addEventListener('DOMContentLoaded', async function() {
       
       if (response && response.success) {
         showStatus(enabled ? 'Extension Enabled' : 'Extension Disabled', 'success');
-        //console.log('Toggle successful');
-      } else {
+      } 
+      else {
         console.error('Toggle failed with response:', response);
         enableToggle.checked = !enabled;
         updateUI(!enabled);
         showStatus('Failed to update extension state', 'error');
       }
-    } catch (error) {
+    } 
+    catch (error) {
       console.error('Error in toggleExtension:', error);
       enableToggle.checked = !enabled;
       updateUI(!enabled);
@@ -171,11 +165,11 @@ document.addEventListener('DOMContentLoaded', async function() {
   
   function updateUI(enabled) {
     toggleText.textContent = enabled ? 'Extension Enabled' : 'Extension Disabled';
-    
     if (enabled) {
       settingsContainer.classList.remove('disabled');
       clearNowBtn.disabled = false;
-    } else {
+    } 
+    else {
       settingsContainer.classList.add('disabled');
       clearNowBtn.disabled = true;
     }
@@ -248,10 +242,12 @@ document.addEventListener('DOMContentLoaded', async function() {
       } else {
         showStatus(response.message || 'Error clearing clipboard', 'error');
       }
-    } catch (error) {
+    } 
+    catch (error) {
       console.error('Error clearing clipboard:', error);
       showStatus('Error clearing clipboard', 'error');
-    } finally {
+    } 
+    finally {
       clearNowBtn.disabled = false;
       clearNowBtn.textContent = 'Clear Now';
     }

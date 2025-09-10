@@ -20,7 +20,8 @@ async function loadSettings() {
     settings.enabled = result.extensionEnabled !== false;
     settings.clearOnlyOnPasswordPaste = Boolean(result.clearOnlyOnPasswordPaste);
     settingsInitialized = true;
-  } catch (error) {
+  } 
+  catch (error) {
     console.log('[Copy, Paste, Forget] Error loading settings:', error);
     settings = { interval: 10, enabled: true, clearOnlyOnPasswordPaste: false };
     settingsInitialized = true;
@@ -39,11 +40,6 @@ function ensureSettingsLoaded() {
 // Message router
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   switch (message.type) {
-    case 'COPY_DETECTED': {
-      if (settings.enabled) handleCopyEvent();
-      sendResponse({ success: true });
-      return; // sync response
-    }
     case 'PASTE_DETECTED': {
       if (settings.enabled) {
         const isPassword = Boolean(message.isPassword);
@@ -80,7 +76,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
         chrome.storage.sync.set({ extensionEnabled: settings.enabled }).catch(() => {});
         sendResponse({ success: true });
-      } catch (error) {
+      } 
+      catch (error) {
         console.error('[Copy, Paste, Forget] Toggle error:', error);
         sendResponse({ success: false, error: error.message });
       }
@@ -123,13 +120,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-function handleCopyEvent() {
-  if (clearTimer) {
-    clearTimeout(clearTimer);
-    clearTimer = null;
-  }
-}
-
 function handlePasteEvent() {
   if (clearTimer) clearTimeout(clearTimer);
 
@@ -167,7 +157,8 @@ async function clearClipboard() {
         showClearedBadge();
         return;
       }
-    } catch (e) {}
+    } 
+    catch (e) {}
 
     // Fallback: any suitable tab
     try {
@@ -185,7 +176,8 @@ async function clearClipboard() {
         showClearedBadge();
         return;
       }
-    } catch (e) {}
+    } 
+    catch (e) {}
 
     // Last resort: ask any content script
     try {
@@ -198,10 +190,12 @@ async function clearClipboard() {
               showClearedBadge();
               return;
             }
-          } catch (e) {}
+          } 
+          catch (e) {}
         }
       }
-    } catch (e) {}
+    } 
+    catch (e) {}
 
     // Try offscreen document fallback
     if (await clearClipboardOffscreen()) {
@@ -210,7 +204,8 @@ async function clearClipboard() {
     }
 
     console.error('[Copy, Paste, Forget] No suitable context available to clear clipboard');
-  } catch (error) {
+  } 
+  catch (error) {
     console.error('[Copy, Paste, Forget] Error in clearClipboard:', error);
   }
 }
@@ -245,11 +240,13 @@ function clearClipboardInTab() {
           // If possible, overwrite with a truly empty string using modern API
           try { navigator.clipboard && navigator.clipboard.writeText && navigator.clipboard.writeText(''); } catch (_) {}
         }
-      } catch (execError) {
+      } 
+      catch (execError) {
         console.log('[Copy, Paste, Forget] execCommand method failed:', execError);
       }
     }
-  } catch (error) {
+  } 
+  catch (error) {
     console.log('[Copy, Paste, Forget] Error in clearClipboardInTab:', error);
   }
 }
@@ -268,7 +265,8 @@ async function updateSettings(newInterval) {
       clearTimeout(clearTimer);
       clearTimer = setTimeout(() => clearClipboard(), settings.interval * 1000);
     }
-  } catch (error) {
+  } 
+  catch (error) {
     console.error('[Copy, Paste, Forget] Error saving settings:', error);
   }
 }
@@ -287,7 +285,8 @@ async function ensureOffscreen() {
     // Wait for offscreen to be responsive
     const ready = await pingOffscreen(5, 200);
     return !!ready;
-  } catch (_) {
+  } 
+  catch (_) {
     return false;
   }
 }
@@ -300,7 +299,8 @@ async function clearClipboardOffscreen() {
       let tab;
       try {
         tab = await chrome.tabs.create({ url: chrome.runtime.getURL('offscreen.html'), active: false });
-      } catch (_) {
+      } 
+      catch (_) {
         // If no window exists, create a minimized popup window
         const win = await chrome.windows.create({
           url: chrome.runtime.getURL('offscreen.html'),
@@ -320,7 +320,8 @@ async function clearClipboardOffscreen() {
         try { await chrome.tabs.remove(tab.id); } catch (_) {}
       }
       return true; // best effort
-    } catch (_) {
+    } 
+    catch (_) {
       return false;
     }
   }
@@ -353,7 +354,8 @@ async function clearClipboardOffscreen() {
       }
       return true;
     }
-  } catch (_) {}
+  } 
+  catch (_) {}
   // If offscreen did not respond, fall back to ephemeral window path
   try {
     const win = await chrome.windows.create({
@@ -367,7 +369,8 @@ async function clearClipboardOffscreen() {
     await new Promise((r) => setTimeout(r, 800));
     try { if (win && win.id) await chrome.windows.remove(win.id); } catch (_) {}
     return true;
-  } catch (_) {
+  } 
+  catch (_) {
     return false;
   }
 }
@@ -382,7 +385,8 @@ function pingOffscreen(retries = 3, delay = 150) {
           resolve(Boolean(response && response.success));
         }
       });
-    } catch (_) {
+    } 
+    catch (_) {
       resolve(false);
     }
   });
