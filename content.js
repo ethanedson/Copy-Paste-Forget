@@ -50,9 +50,6 @@
     if (listenersSetup) return;
     listenersSetup = true;
     
-    // Listen for keyboard shortcuts
-    document.addEventListener('keydown', handleKeyboardEvent, true);
-    
     // Listen for copy events
     document.addEventListener('paste', handlePasteEvent, true);
     
@@ -71,7 +68,7 @@
       }
     } 
     catch (error) {
-      console.log('[Copy, Paste, Forget] Extension context invalid on startup');
+      console.log('[Copy, Paste, Forget!] Extension context invalid on startup');
       extensionContextValid = false;
     }
   }
@@ -112,7 +109,7 @@
   
   function notifyPasteEvent(isPasswordFieldPaste = false) {
     if (!extensionContextValid) {
-      console.log('[Copy, Paste, Forget] Skipping paste event - extension context invalid');
+      console.log('[Copy, Paste, Forget!] Skipping paste event - extension context invalid');
       return;
     }
 
@@ -127,7 +124,7 @@
     try {
       // Check if chrome.runtime is available and extension context is valid
       if (!chrome.runtime || !chrome.runtime.id) {
-        console.log('[Copy, Paste, Forget] Extension context invalidated, stopping notifications');
+        console.log('[Copy, Paste, Forget!] Extension context invalidated, stopping notifications');
         extensionContextValid = false;
         return;
       }
@@ -141,12 +138,12 @@
           if (error.includes('Extension context invalidated') || 
               error.includes('Receiving end does not exist') ||
               error.includes('message port closed')) {
-            console.log('[Copy, Paste, Forget] Extension context invalidated:', error);
+            console.log('[Copy, Paste, Forget!] Extension context invalidated:', error);
             extensionContextValid = false;
             return;
           }
           
-          console.log('[Copy, Paste, Forget] Runtime error:', error);
+          console.log('[Copy, Paste, Forget!] Runtime error:', error);
         }
         
         // Message sent successfully
@@ -156,13 +153,13 @@
       
     } 
     catch (error) {
-      console.log('[Copy, Paste, Forget] Error sending message:', error.message);
+      console.log('[Copy, Paste, Forget!] Error sending message:', error.message);
       
       // Mark context as invalid if we get extension-related errors
       if (error.message.includes('Extension context invalidated') ||
           error.message.includes('chrome.runtime') ||
           error.message.includes('Invocation of form')) {
-        console.log('[Copy, Paste, Forget] Marking extension context as invalid');
+        console.log('[Copy, Paste, Forget!] Marking extension context as invalid');
         extensionContextValid = false;
       }
     }
@@ -176,7 +173,7 @@
         sendResponse({ success: true });
       } 
       catch (error) {
-        console.log('[Copy, Paste, Forget] Error clearing clipboard in content script:', error);
+        console.log('[Copy, Paste, Forget!] Error clearing clipboard in content script:', error);
         sendResponse({ success: false, error: error.message });
       }
     }
@@ -189,7 +186,7 @@
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText("").then(() => {
         }).catch(err => {
-          console.log('[Copy, Paste, Forget] Content script clipboard clear failed:', err);
+          console.log('[Copy, Paste, Forget!] Content script clipboard clear failed:', err);
         });
       } 
       else {
@@ -212,7 +209,7 @@
       }
     } 
     catch (error) {
-      console.log('[Copy, Paste, Forget] Error in clearClipboardInContent:', error);
+      console.log('[Copy, Paste, Forget!] Error in clearClipboardInContent:', error);
       throw error;
     }
   }
@@ -233,11 +230,11 @@
     if (extensionContextValid) {
       try {
         if (!chrome.runtime || !chrome.runtime.id) {
-          console.log('[Copy, Paste, Forget] Extension context lost during periodic check');
+          console.log('[Copy, Paste, Forget!] Extension context lost during periodic check');
           extensionContextValid = false;
         }
       } catch (error) {
-        console.log('[Copy, Paste, Forget] Extension context lost during periodic check:', error.message);
+        console.log('[Copy, Paste, Forget!] Extension context lost during periodic check:', error.message);
         extensionContextValid = false;
       }
     }

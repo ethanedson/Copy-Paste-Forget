@@ -1,4 +1,4 @@
-// Background script for Copy, Paste, Forget (MV3)
+// Background script for Copy, Paste, Forget! (MV3)
 
 let clearTimer = null;
 let settings = { interval: 10, enabled: true, clearOnlyOnPasswordPaste: false };
@@ -22,7 +22,7 @@ async function loadSettings() {
     settingsInitialized = true;
   } 
   catch (error) {
-    console.log('[Copy, Paste, Forget] Error loading settings:', error);
+    console.log('[Copy, Paste, Forget!] Error loading settings:', error);
     settings = { interval: 10, enabled: true, clearOnlyOnPasswordPaste: false };
     settingsInitialized = true;
   }
@@ -78,7 +78,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse({ success: true });
       } 
       catch (error) {
-        console.error('[Copy, Paste, Forget] Toggle error:', error);
+        console.error('[Copy, Paste, Forget!] Toggle error:', error);
         sendResponse({ success: false, error: error.message });
       }
       return; // sync response
@@ -97,7 +97,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           await chrome.storage.sync.set({ clearOnlyOnPasswordPaste: value });
           sendResponse({ success: true });
         } catch (error) {
-          console.error('[Copy, Paste, Forget] Error updating password-only setting:', error);
+          console.error('[Copy, Paste, Forget!] Error updating password-only setting:', error);
           sendResponse({ success: false, error: error.message });
         }
       })();
@@ -203,10 +203,10 @@ async function clearClipboard() {
       return;
     }
 
-    console.error('[Copy, Paste, Forget] No suitable context available to clear clipboard');
+    console.error('[Copy, Paste, Forget!] No suitable context available to clear clipboard');
   } 
   catch (error) {
-    console.error('[Copy, Paste, Forget] Error in clearClipboard:', error);
+    console.error('[Copy, Paste, Forget!] Error in clearClipboard:', error);
   }
 }
 
@@ -214,7 +214,7 @@ function clearClipboardInTab() {
   try {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText('').catch((err) => {
-        console.log('[Copy, Paste, Forget] Modern API failed, trying fallback:', err);
+        console.log('[Copy, Paste, Forget!] Modern API failed, trying fallback:', err);
         clearWithExecCommand();
       });
     } else {
@@ -235,19 +235,19 @@ function clearClipboardInTab() {
         const success = document.execCommand('copy');
         document.body.removeChild(textarea);
         if (!success) {
-          console.log('[Copy, Paste, Forget] execCommand failed');
+          console.log('[Copy, Paste, Forget!] execCommand failed');
         } else {
           // If possible, overwrite with a truly empty string using modern API
           try { navigator.clipboard && navigator.clipboard.writeText && navigator.clipboard.writeText(''); } catch (_) {}
         }
       } 
       catch (execError) {
-        console.log('[Copy, Paste, Forget] execCommand method failed:', execError);
+        console.log('[Copy, Paste, Forget!] execCommand method failed:', execError);
       }
     }
   } 
   catch (error) {
-    console.log('[Copy, Paste, Forget] Error in clearClipboardInTab:', error);
+    console.log('[Copy, Paste, Forget!] Error in clearClipboardInTab:', error);
   }
 }
 
@@ -267,7 +267,7 @@ async function updateSettings(newInterval) {
     }
   } 
   catch (error) {
-    console.error('[Copy, Paste, Forget] Error saving settings:', error);
+    console.error('[Copy, Paste, Forget!] Error saving settings:', error);
   }
 }
 

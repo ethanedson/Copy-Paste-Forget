@@ -1,9 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Copy, Paste, Forget",
+  "name": "Copy, Paste, Forget!",
   "version": "1.0.1",
   "description": "Automatically clears clipboard after a specified interval for enhanced security",
-  
   "permissions": [
     "activeTab",
     "clipboardWrite",
@@ -12,6 +11,11 @@
     "tabs",
     "offscreen"
   ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   
   "background": {
     "service_worker": "background.js"
@@ -27,7 +31,12 @@
   
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Copy, Paste, Forget Settings"
+    "default_title": "Copy, Paste, Forget! Settings",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
   },
   
   "host_permissions": [
