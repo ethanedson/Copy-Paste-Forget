@@ -15,23 +15,29 @@
   // Track extension context validity
   let extensionContextValid = true;
   
-  // Determine if an element is a password field
+  // Determine if an element is a password or passcode field
+  // Narrow and explicit to avoid false positives (e.g., email/chat inputs)
   function isPasswordField(el) {
     try {
       if (!el || !(el instanceof Element)) return false;
-      if (el instanceof HTMLInputElement) {
-        const type = (el.type || '').toLowerCase();
-        if (type === 'password') return true;
-        const ac = (el.getAttribute('autocomplete') || '').toLowerCase();
-        if (/(^|\s)(current-password|new-password)(\s|$)/.test(ac)) return true;
-        const nameId = ((el.name || '') + ' ' + (el.id || '')).toLowerCase();
-        if (nameId.includes('password')) return true;
-        const css = getComputedStyle(el).getPropertyValue('-webkit-text-security');
-        if (css && css.trim().toLowerCase() !== 'none') return true;
-      }
-      // Check ancestors in case of shadow roots or wrapping
-      const ancestor = el.closest && el.closest('input,textarea,[contenteditable="true"]');
-      if (ancestor && ancestor !== el) return isPasswordField(ancestor);
+
+      // Only consider actual input controls, not generic contenteditable/textarea
+      const input = el.closest && el.closest('input');
+      if (!input || !(input instanceof HTMLInputElement)) return false;
+
+      const type = (input.type || '').toLowerCase();
+      if (type === 'password') return true;
+
+      // Respect explicit autocomplete intents per spec
+      const ac = (input.getAttribute('autocomplete') || '').toLowerCase();
+      if (/(^|\s)(current-password|new-password|one-time-code)(\s|$)/.test(ac)) return true;
+
+      // Accept masked inputs that deliberately hide characters
+      // Some UIs use CSS masking for passcodes; keep this but avoid broad heuristics
+      const css = getComputedStyle(input).getPropertyValue('-webkit-text-security');
+      if (css && css.trim().toLowerCase() !== 'none') return true;
+
+      // Do NOT infer from name/id text — too many false positives
       return false;
     } catch (_) {
       return false;
